@@ -5,7 +5,7 @@ import clr
 clr.AddReference('UIAutomationClient')
 clr.AddReference('UIAutomationTypes')
 clr.AddReference('System.Windows.Forms')
-from System.Windows.Automation import AutomationElement, PropertyCondition, TreeScope, Condition, Automation, InvokePattern, TextPattern
+from System.Windows.Automation import AutomationElement, PropertyCondition, TreeScope, Condition, Automation, InvokePattern, TextPattern, TreeWalker
 
 '''
 from System.Windows.Automation import AutomationPattern, BasePattern, DockPattern, ExpandCollapsePattern, GridItemPattern, GridPattern
@@ -70,11 +70,9 @@ class PythonicAutomationElement(object):
         elements = self.FindAll(TreeScope.Descendants, Condition.TrueCondition)
         el = [l for l in elements if l.AutomationId == path_parts[0]][0]
         #endreplaceelement
-
-        els = el.FindAll(TreeScope.Descendants, Condition.TrueCondition)
-        print els
-        print [l.AutomationId for l in els]
-        return el
+        tw = TreeWalker(Condition.TrueCondition)
+        el1 = tw.GetNextSibling(el.elem)
+        return PythonicAutomationElement(el1)
 
     def GetSupportedProperties(self):
         properties = {}

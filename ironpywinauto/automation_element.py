@@ -70,9 +70,17 @@ class PythonicAutomationElement(object):
         elements = self.FindAll(TreeScope.Descendants, Condition.TrueCondition)
         el = [l for l in elements if l.AutomationId == path_parts[0]][0]
         #endreplaceelement
+
         tw = TreeWalker(Condition.TrueCondition)
-        el1 = tw.GetNextSibling(el.elem)
-        return PythonicAutomationElement(el1)
+        siblingElement = tw.GetNextSibling(el.elem)
+        currentElement = PythonicAutomationElement(el.elem)
+        while siblingElement is not None:
+            currentElement = PythonicAutomationElement(siblingElement)
+            if currentElement.ControlType.lower() == path_parts[1].lower():
+                break
+            siblingElement = tw.GetNextSibling(currentElement.elem)
+
+        return PythonicAutomationElement(siblingElement)
 
     def GetSupportedProperties(self):
         properties = {}

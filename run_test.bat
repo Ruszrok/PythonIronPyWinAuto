@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\IronPython 2.7\ipy.exe" WindowInspector.py GUIAT_PoC.exe 1>stdout.txt 2>stderr.txt

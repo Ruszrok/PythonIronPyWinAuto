@@ -69,6 +69,10 @@ for elem in allElements:
     '''
     f.write("\n")
 
+
+
+print mainWindow.FindRelative("lblNewItem.Edit").AutomationId
+
 print '\n\n-----------------------------------------'
 print dir(allElements[0])
 

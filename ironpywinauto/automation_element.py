@@ -51,7 +51,7 @@ class PythonicAutomationElement(object):
             if prop_name == attr_name:
                 return self.elem.GetCurrentPropertyValue(prop)
         # TODO: get child using best match algorithm
-        # FindAll(TreeScope.Descendants, Condition.TrueCondition)
+        # FindAll(TreeScope.Descendants, Condition.TrueCondition)        
         raise AttributeError()
 
     def FindAll(self, scope, condition):
@@ -59,6 +59,22 @@ class PythonicAutomationElement(object):
 
     def FindFirst(self, scope, condition):
         return PythonicAutomationElement(self.elem.FindFirst(scope, condition))
+
+    def FindRelative(self, path):
+        '''
+        Find element using AutonationId or Name with relative navigation 
+        path like lblNewItem.Edit - separated by point        
+        '''
+        #replace this with RK code
+        path_parts = path.split(".")
+        elements = self.FindAll(TreeScope.Descendants, Condition.TrueCondition)
+        el = [l for l in elements if l.AutomationId == path_parts[0]][0]
+        #endreplaceelement
+
+        els = el.FindAll(TreeScope.Descendants, Condition.TrueCondition)
+        print els
+        print [l.AutomationId for l in els]
+        return el
 
     def GetSupportedProperties(self):
         properties = {}

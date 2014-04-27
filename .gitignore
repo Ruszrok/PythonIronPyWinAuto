@@ -1,3 +1,12 @@
 output.txt
 stderr.txt
 stdout.txt
+
+*.exe
+*.dll
+
+# Vim swap files
+.swp
+
+# Ctags
+tags

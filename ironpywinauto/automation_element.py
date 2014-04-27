@@ -15,6 +15,8 @@ from System.Windows.Automation import TextPattern, TogglePattern, TransformPatte
 '''
 from System.Windows.Forms import SendKeys
 
+import findbestmatch
+
 class PythonicAutomationElement(object):
 
     def __init__(self, auto_elem):
@@ -51,7 +53,14 @@ class PythonicAutomationElement(object):
             if prop_name == attr_name:
                 return self.elem.GetCurrentPropertyValue(prop)
         # TODO: get child using best match algorithm
-        # FindAll(TreeScope.Descendants, Condition.TrueCondition)        
+        elements = self.FindAll(TreeScope.Descendants, Condition.TrueCondition)
+        elements_texts = [" ".join([el.AutomationId, el.ClassName, el.Name]) for el in elements]
+        result = findbestmatch.find_best_match(attr_name, elements_texts, elements)
+        if result == None:
+            raise findbestmatch.MatchError()
+        else:
+            return result
+
         raise AttributeError()
 
     def FindAll(self, scope, condition):

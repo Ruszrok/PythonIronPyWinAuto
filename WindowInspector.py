@@ -72,7 +72,7 @@ for elem in allElements:
 
 
 print mainWindow.Minimize.AutomationId
-print mainWindow.FindRelative("lblNewItem.Edit").AutomationId
+print mainWindow.lblNewItemEdit.AutomationId
 
 print '\n\n-----------------------------------------'
 print dir(allElements[0])

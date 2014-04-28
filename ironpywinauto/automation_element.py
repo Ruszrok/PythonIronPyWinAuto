@@ -18,11 +18,17 @@ from System.Windows.Forms import SendKeys
 import findbestmatch
 
 class PythonicAutomationElement(object):
+    ElementNamesCombinations = []
+    Elements = []
+    def UpdateElementsAndCombinations(self):
+        self.Elements = self.FindAll(TreeScope.Descendants, Condition.TrueCondition)
+        self.ElementNamesCombinations = [" ".join([el.AutomationId, el.ClassName, el.Name]) for el in self.Elements]
+        self.ElementNamesCombinations.extend(self.GetRelativeCombinations(self.Elements))
 
     def __init__(self, auto_elem):
         if not isinstance(auto_elem, AutomationElement):
             raise TypeError('PythonicAutomationElement can be initialized with AutomationElement instance only!')
-        self.elem = auto_elem
+        self.elem = auto_elem                
 
     AutomationId = property(lambda self: str(self.elem.GetCurrentPropertyValue(AutomationElement.AutomationIdProperty).strip("'")),
             doc="AutomationId property")
@@ -53,15 +59,14 @@ class PythonicAutomationElement(object):
             if prop_name == attr_name:
                 return self.elem.GetCurrentPropertyValue(prop)
         # TODO: get child using best match algorithm
-        elements = self.FindAll(TreeScope.Descendants, Condition.TrueCondition)
-        elements_texts = [" ".join([el.AutomationId, el.ClassName, el.Name]) for el in elements]
-        result = findbestmatch.find_best_match(attr_name, elements_texts, elements)
+        self.UpdateElementsAndCombinations()
+        result = findbestmatch.find_best_match(attr_name, self.ElementNamesCombinations, self.Elements)
         if result == None:
             raise findbestmatch.MatchError()
         else:
             return result
 
-        raise AttributeError()
+        raise AttributeError()    
 
     def FindAll(self, scope, condition):
         return [PythonicAutomationElement(elem) for elem in self.elem.FindAll(scope, condition)]
@@ -69,27 +74,42 @@ class PythonicAutomationElement(object):
     def FindFirst(self, scope, condition):
         return PythonicAutomationElement(self.elem.FindFirst(scope, condition))
 
-    def FindRelative(self, path):
-        '''
-        Find element using AutonationId or Name with relative navigation 
-        path like lblNewItem.Edit - separated by point        
-        '''
-        #replace this with RK code
-        path_parts = path.split(".")
-        elements = self.FindAll(TreeScope.Descendants, Condition.TrueCondition)
-        el = [l for l in elements if l.AutomationId == path_parts[0]][0]
-        #endreplaceelement
+    def GetRelativeCombinations(self, elements):
+        dynamic_elements = [l for l in elements if l.ControlType.lower() in ["edit", "listbox", "combobox", "updown", "list"]]
+        
+        result =[]
+        for el in dynamic_elements:
+            tw = TreeWalker(Condition.TrueCondition)
+            siblingElement = tw.GetPreviousSibling(el.elem)
+            currentElement = PythonicAutomationElement(el.elem)
+            if siblingElement is not None:
+                pySiblingElement = PythonicAutomationElement(siblingElement)
+                result.append(pySiblingElement.AutomationId + currentElement.ControlType)
+                result.append(pySiblingElement.Name + currentElement.ControlType)
+        
+        return result
 
-        tw = TreeWalker(Condition.TrueCondition)
-        siblingElement = tw.GetNextSibling(el.elem)
-        currentElement = PythonicAutomationElement(el.elem)
-        while siblingElement is not None:
-            currentElement = PythonicAutomationElement(siblingElement)
-            if currentElement.ControlType.lower() == path_parts[1].lower():
-                break
-            siblingElement = tw.GetNextSibling(currentElement.elem)
+    # def FindRelative(self, path):
+    #     '''
+    #     Find element using AutonationId or Name with relative navigation 
+    #     path like lblNewItem.Edit - separated by point        
+    #     '''
+    #     #replace this with RK code
+    #     path_parts = path.split(".")
+    #     elements = self.FindAll(TreeScope.Descendants, Condition.TrueCondition)
+    #     el = [l for l in elements if l.AutomationId == path_parts[0]][0]
+    #     #endreplaceelement
 
-        return PythonicAutomationElement(siblingElement)
+    #     tw = TreeWalker(Condition.TrueCondition)
+    #     siblingElement = tw.GetNextSibling(el.elem)
+    #     currentElement = PythonicAutomationElement(el.elem)
+    #     while siblingElement is not None:
+    #         currentElement = PythonicAutomationElement(siblingElement)
+    #         if currentElement.ControlType.lower() == path_parts[1].lower():
+    #             break
+    #         siblingElement = tw.GetNextSibling(currentElement.elem)
+
+    #     return PythonicAutomationElement(siblingElement)
 
     def GetSupportedProperties(self):
         properties = {}

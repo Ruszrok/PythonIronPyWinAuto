@@ -71,11 +71,11 @@ for elem in allElements:
 
 
 
-print mainWindow.Minimize.AutomationId
-print mainWindow.lblNewItem.AutomationId
+print 'Minimize: ', mainWindow.Minimize.AutomationId
+print 'lblNewItem: ', mainWindow.lblNewItem.AutomationId
 print mainWindow.__getattribute__("Button+Minimize").AutomationId
 print mainWindow.__getattribute__("Menu Bar+frmGUIat").Name
-print mainWindow.lblNewItemEdit.AutomationId
+print 'txtNewItem: ', mainWindow.lblNewItemEdit.AutomationId
 
 print '\n\n-----------------------------------------'
 print dir(allElements[0])

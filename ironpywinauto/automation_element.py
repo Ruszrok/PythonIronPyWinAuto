@@ -21,7 +21,12 @@ class PythonicAutomationElement(object):
     def __init__(self, auto_elem):
         if not isinstance(auto_elem, AutomationElement):
             raise TypeError('PythonicAutomationElement can be initialized with AutomationElement instance only!')
-        self.elem = auto_elem                
+        self.elem = auto_elem
+
+        self.Updated = False
+        self.ElementNamesCombinations = []
+        self.Elements = []
+        self.ElementsExtended = []
 
     AutomationId = property(lambda self: str(self.elem.GetCurrentPropertyValue(AutomationElement.AutomationIdProperty).strip("'")),
             doc="AutomationId property")
@@ -42,14 +47,17 @@ class PythonicAutomationElement(object):
     IsEnabled = property(lambda self: self.elem.GetCurrentPropertyValue(AutomationElement.IsEnabledProperty),
             doc="IsEnabled property")
 
-    ElementNamesCombinations = []
-    Elements = []
-    Updated = False
     def UpdateElementsAndCombinations(self):
-        self.Elements = self.FindAll(TreeScope.Descendants, Condition.TrueCondition)
-        self.ElementNamesCombinations = [" ".join([el.AutomationId, el.ClassName, el.Name]) for el in self.Elements]
-        self.ElementNamesCombinations.extend(self.GetRelativeCombinations(self.Elements))
-        self.Updated = True
+        if not self.Updated:
+            self.Elements = self.FindAll(TreeScope.Descendants, Condition.TrueCondition)
+            self.ElementNamesCombinations = map(str, [el.AutomationId for el in self.Elements])
+            self.ElementNamesCombinations.extend(map(str, [el.ClassName for el in self.Elements]))
+            self.ElementNamesCombinations.extend(map(str, [el.Name for el in self.Elements]))
+            self.ElementNamesCombinations.extend(["+".join([el.ClassName, el.Name]) for el in self.Elements])
+            self.ElementNamesCombinations.extend(["+".join([el.AutomationId, el.Name]) for el in self.Elements])
+            self.ElementNamesCombinations.extend(["+".join([el.ClassName, el.AutomationId]) for el in self.Elements])
+            self.ElementsExtended = self.Elements * 6
+            self.Updated = True
 
     def GetRelativeCombinations(self, elements):
         dynamic_elements = [l for l in elements if l.ControlType.lower() in ["edit", "listbox", "combobox", "updown", "list"]]
@@ -77,20 +85,16 @@ class PythonicAutomationElement(object):
             prop_name = str(Automation.PropertyName(prop))
             if prop_name == attr_name:
                 return self.elem.GetCurrentPropertyValue(prop)
-        # TODO: get child using best match algorithm
-        if self.Updated == False:
-            self.UpdateElementsAndCombinations()
 
-        result = findbestmatch.find_best_match(attr_name, self.ElementNamesCombinations, self.Elements)
+        self.UpdateElementsAndCombinations()
+
+        result = findbestmatch.find_best_match(attr_name, self.ElementNamesCombinations, self.ElementsExtended)
         if result == None:
             raise findbestmatch.MatchError()
         else:
             return result
 
         raise AttributeError()
-
-    def ForceUpdateElements():
-        self.UpdateElementsAndCombinations()
 
     def FindAll(self, scope, condition):
         return [PythonicAutomationElement(elem) for elem in self.elem.FindAll(scope, condition)]

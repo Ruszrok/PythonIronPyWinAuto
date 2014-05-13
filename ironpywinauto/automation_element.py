@@ -57,6 +57,7 @@ class PythonicAutomationElement(object):
             self.ElementNamesCombinations.extend(["+".join([el.AutomationId, el.Name]) for el in self.Elements])
             self.ElementNamesCombinations.extend(["+".join([el.ClassName, el.AutomationId]) for el in self.Elements])
             self.ElementsExtended = self.Elements * 6
+            self.ElementNamesCombinations.extend(self.GetRelativeCombinations(self.Elements))
             self.Updated = True
 
     def GetRelativeCombinations(self, elements):
@@ -71,8 +72,8 @@ class PythonicAutomationElement(object):
                 pySiblingElement = PythonicAutomationElement(siblingElement)
                 result.append(pySiblingElement.AutomationId + currentElement.ControlType)
                 result.append(pySiblingElement.Name + currentElement.ControlType)
-                self.Elements.append(currentElement)
-                self.Elements.append(currentElement)
+                self.ElementsExtended.append(currentElement)
+                self.ElementsExtended.append(currentElement)
         
         return result
 

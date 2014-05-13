@@ -73,8 +73,8 @@ for elem in allElements:
 
 print mainWindow.Minimize.AutomationId
 print mainWindow.lblNewItem.AutomationId
-print mainWindow.__getattribute__("Button+Minimize").AutomationId
-print mainWindow.__getattribute__("Menu Bar+frmGUIat").Name
+print mainWindow.Button_Minimize.AutomationId
+print mainWindow.MenuBar_frmGUIat.Name
 print mainWindow.lblNewItemEdit.AutomationId
 
 print '\n\n-----------------------------------------'

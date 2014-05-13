@@ -78,7 +78,7 @@ print mainWindow.MenuBar_frmGUIat.Name
 print mainWindow.lblNewItemEdit.AutomationId
 
 print '\n\n-----------------------------------------'
-print dir(allElements[0])
+print mainWindow.PrintControlIdentifiers()
 
 f.close()
 print "Killing application..."

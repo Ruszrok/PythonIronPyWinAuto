@@ -2,6 +2,7 @@
 import inspect
 
 import clr
+import re
 clr.AddReference('UIAutomationClient')
 clr.AddReference('UIAutomationTypes')
 clr.AddReference('System.Windows.Forms')
@@ -18,6 +19,8 @@ from System.Windows.Forms import SendKeys
 import findbestmatch
 
 class PythonicAutomationElement(object):
+    __AutomationAttribute = re.compile('[^_A-Za-z0-9]')
+
     def __init__(self, auto_elem):
         if not isinstance(auto_elem, AutomationElement):
             raise TypeError('PythonicAutomationElement can be initialized with AutomationElement instance only!')
@@ -53,9 +56,9 @@ class PythonicAutomationElement(object):
             self.ElementNamesCombinations = map(str, [el.AutomationId for el in self.Elements])
             self.ElementNamesCombinations.extend(map(str, [el.ClassName for el in self.Elements]))
             self.ElementNamesCombinations.extend(map(str, [el.Name for el in self.Elements]))
-            self.ElementNamesCombinations.extend(["+".join([el.ClassName, el.Name]) for el in self.Elements])
-            self.ElementNamesCombinations.extend(["+".join([el.AutomationId, el.Name]) for el in self.Elements])
-            self.ElementNamesCombinations.extend(["+".join([el.ClassName, el.AutomationId]) for el in self.Elements])
+            self.ElementNamesCombinations.extend(["_".join([el.ClassName, el.Name]) for el in self.Elements])
+            self.ElementNamesCombinations.extend(["_".join([el.AutomationId, el.Name]) for el in self.Elements])
+            self.ElementNamesCombinations.extend(["_".join([el.ClassName, el.AutomationId]) for el in self.Elements])
             self.ElementsExtended = self.Elements * 6
             self.ElementNamesCombinations.extend(self.GetRelativeCombinations(self.Elements))
             self.Updated = True
@@ -144,7 +147,17 @@ class PythonicAutomationElement(object):
             print("%s%s - '%s'   %s"% (indent_str, ctrl.ControlType, ctrl.Name, str(ctrl.Rectangle))) # ctrl.WindowText()
             print(indent_str + "\tProperties: " + str(ctrl.GetImportantProperties())) #.keys()
             print(indent_str + "\tAutomationId: '" + str(ctrl.AutomationId) + "'\n")
+            children_queries = [x for x, y in zip(self.ElementNamesCombinations, self.ElementsExtended) if y.AutomationId == ctrl.AutomationId and x != "" and ctrl.AutomationId != ""]
+            children_queries = map(lambda x: x.lstrip("_").rstrip("_"), map(lambda x: re.sub(self.__AutomationAttribute, "_", x), children_queries))
+            if len(children_queries) != 0:
+                print("\tQueries:" + str(children_queries))
+            ctrl.UpdateElementsAndCombinations()
             ctrl.__print_immediate_controls(indent + 1)
+
+        queries = [x for x, y in zip(self.ElementNamesCombinations, self.ElementsExtended) if y.AutomationId == self.AutomationId and x != "" and self.AutomationId != ""]
+        queries = map(lambda x: x.lstrip("_").rstrip("_"), map(lambda x: re.sub(self.__AutomationAttribute, "_", x), queries))
+        if len(queries) != 0:
+            print("\tQueries: " + str(queries))
 
     def PrintControlIdentifiers(self):
         self.__print_immediate_controls(0)

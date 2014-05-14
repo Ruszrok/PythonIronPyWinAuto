@@ -153,10 +153,6 @@ class PythonicAutomationElement(object):
             ctrl.UpdateElementsAndCombinations()
             ctrl.__print_immediate_controls(indent + 1)
 
-        queries = self.GetQueriesFor(self)
-        if queries:
-            print(indent_str + "\tQueries: " + str(queries) + '\n')
-
     def FilterQueries(self, queries):
         return list(set(map(lambda x: x.lstrip("_").rstrip("_"), map(lambda x: re.sub(self.__AutomationAttribute, "_", x), queries))))
 

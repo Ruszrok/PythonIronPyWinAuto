@@ -44,7 +44,7 @@ for attr in dir(mainWindow):
             f.write(attr + '\n')
 f.write('\n\n')
 
-print "Gathering controls information..."
+print "\n\nGathering controls information..."
 print mainWindow.PrintControlIdentifiers()
 
 f.close()

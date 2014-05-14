@@ -40,7 +40,7 @@ class PythonicAutomationElement(object):
     ClassName = property(lambda self: str(self.elem.GetCurrentPropertyValue(AutomationElement.ClassNameProperty).strip("'")),
             doc="ClassName property")
 
-    ControlType = property(lambda self: str(self.elem.GetCurrentPropertyValue(AutomationElement.ControlTypeProperty).ProgrammaticName).lstrip('ControlType.').strip("'"),
+    ControlType = property(lambda self: str(self.elem.GetCurrentPropertyValue(AutomationElement.ControlTypeProperty).ProgrammaticName)[len('ControlType.'):].strip("'"),
             doc="ControlType property")
 
     BoundingRectangle = property(lambda self: self.elem.GetCurrentPropertyValue(AutomationElement.BoundingRectangleProperty),

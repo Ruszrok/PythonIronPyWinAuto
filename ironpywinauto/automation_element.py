@@ -146,18 +146,24 @@ class PythonicAutomationElement(object):
         for ctrl in children:
             print("%s%s - '%s'   %s"% (indent_str, ctrl.ControlType, ctrl.Name, str(ctrl.Rectangle))) # ctrl.WindowText()
             print(indent_str + "\tProperties: " + str(ctrl.GetImportantProperties())) #.keys()
-            print(indent_str + "\tAutomationId: '" + str(ctrl.AutomationId) + "'\n")
-            children_queries = [x for x, y in zip(self.ElementNamesCombinations, self.ElementsExtended) if y.AutomationId == ctrl.AutomationId and x != "" and ctrl.AutomationId != ""]
-            children_queries = map(lambda x: x.lstrip("_").rstrip("_"), map(lambda x: re.sub(self.__AutomationAttribute, "_", x), children_queries))
-            if len(children_queries) != 0:
-                print("\tQueries:" + str(children_queries))
+            print(indent_str + "\tAutomationId: '" + str(ctrl.AutomationId) + "'")
+            children_queries = self.GetQueriesFor(ctrl)
+            if children_queries:
+                print(indent_str + "\tQueries:" + str(children_queries) + '\n')
             ctrl.UpdateElementsAndCombinations()
             ctrl.__print_immediate_controls(indent + 1)
 
-        queries = [x for x, y in zip(self.ElementNamesCombinations, self.ElementsExtended) if y.AutomationId == self.AutomationId and x != "" and self.AutomationId != ""]
-        queries = map(lambda x: x.lstrip("_").rstrip("_"), map(lambda x: re.sub(self.__AutomationAttribute, "_", x), queries))
-        if len(queries) != 0:
-            print("\tQueries: " + str(queries))
+        queries = self.GetQueriesFor(self)
+        if queries:
+            print(indent_str + "\tQueries: " + str(queries) + '\n')
+
+    def FilterQueries(self, queries):
+        return list(set(map(lambda x: x.lstrip("_").rstrip("_"), map(lambda x: re.sub(self.__AutomationAttribute, "_", x), queries))))
+
+    def GetQueriesFor(self, ctrl):
+        queries = [x for x, y in zip(self.ElementNamesCombinations, self.ElementsExtended)
+                     if y.AutomationId == ctrl.AutomationId and x != "" and ctrl.AutomationId != ""]
+        return self.FilterQueries(queries)
 
     def PrintControlIdentifiers(self):
         self.__print_immediate_controls(0)
@@ -170,4 +176,3 @@ class PythonicAutomationElement(object):
             print("\tProperties: " + str(ctrl.GetImportantProperties())) #.keys()
             print("\tAutomationId: " + str(ctrl.tAutomationId) + "\n")
         '''
-

@@ -148,8 +148,7 @@ class PythonicAutomationElement(object):
             print(indent_str + "\tProperties: " + str(ctrl.GetImportantProperties())) #.keys()
             print(indent_str + "\tAutomationId: '" + str(ctrl.AutomationId) + "'")
             children_queries = self.GetQueriesFor(ctrl)
-            if children_queries:
-                print(indent_str + "\tQueries:" + str(children_queries) + '\n')
+            print(indent_str + "\tQueries:" + str(children_queries) + '\n')
             ctrl.UpdateElementsAndCombinations()
             ctrl.__print_immediate_controls(indent + 1)
 

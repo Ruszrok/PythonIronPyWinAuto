@@ -53,9 +53,9 @@ class PythonicAutomationElement(object):
     def UpdateElementsAndCombinations(self):
         if not self.Updated:
             self.Elements = self.FindAll(TreeScope.Descendants, Condition.TrueCondition)
-            self.ElementNamesCombinations = map(str, [el.AutomationId for el in self.Elements])
-            self.ElementNamesCombinations.extend(map(str, [el.ClassName for el in self.Elements]))
-            self.ElementNamesCombinations.extend(map(str, [el.Name for el in self.Elements]))
+            self.ElementNamesCombinations = self.MakeUnique(map(str, [el.AutomationId for el in self.Elements]))
+            self.ElementNamesCombinations.extend(self.MakeUnique(map(str, [el.ClassName for el in self.Elements])))
+            self.ElementNamesCombinations.extend(self.MakeUnique(map(str, [el.Name for el in self.Elements])))
             self.ElementNamesCombinations.extend(["_".join([el.ClassName, el.Name]) for el in self.Elements])
             self.ElementNamesCombinations.extend(["_".join([el.AutomationId, el.Name]) for el in self.Elements])
             self.ElementNamesCombinations.extend(["_".join([el.ClassName, el.AutomationId]) for el in self.Elements])
@@ -76,9 +76,25 @@ class PythonicAutomationElement(object):
                 result.append(pySiblingElement.AutomationId + currentElement.ControlType)
                 result.append(pySiblingElement.Name + currentElement.ControlType)
                 self.ElementsExtended.append(currentElement)
-                self.ElementsExtended.append(currentElement)
-        
+                self.ElementsExtended.append(currentElement)        
         return result
+
+    def MakeUnique(self, names):
+        uDict = {}
+        result = []
+
+        for  name in names:
+            if name != '':
+                if name in uDict:
+                    uDict[name] = uDict[name] + 1
+                    name = name + str(uDict[name])
+                else:                
+                    uDict[name] = 0
+
+            result.append(name)
+
+        return result
+
 
     def __getattribute__(self, attr_name):
         default_attrs = [attr for attr in dir(PythonicAutomationElement) if attr != '__getattribute__']
@@ -157,7 +173,7 @@ class PythonicAutomationElement(object):
 
     def GetQueriesFor(self, ctrl):
         queries = [x for x, y in zip(self.ElementNamesCombinations, self.ElementsExtended)
-                     if y.AutomationId == ctrl.AutomationId and x != "" and ctrl.AutomationId != ""]
+                     if (y.AutomationId == ctrl.AutomationId and x != "" and ctrl.AutomationId != "")]
         return self.FilterQueries(queries)
 
     def PrintControlIdentifiers(self):
